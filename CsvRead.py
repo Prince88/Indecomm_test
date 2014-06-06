@@ -7,6 +7,7 @@
 
 # In case of any missing value for any column, Exception BadInputFile is raised
 # In case of bad field names (Missing Year/Month), Exception BadInputFile is raised
+# In case of duplicate field name, Exception BadInputFile is raised
 # Last relevant Month/Year is considered in case of multiple highest share price
 
 import csv
@@ -49,8 +50,14 @@ def ParseData(filename):
                 if obj[name] == '':
                     raise BadInputFile(filename)
         fh.seek(0)
-        fh.next()
-        
+        Actualfields = fh.next()
+        # Reading the first line of the file which has field names
+        # Need to see if there is any duplicate field name
+        Actualfields = Actualfields.split(',')
+        Actualfields[-1] = Actualfields[-1].strip('\n')
+        Actualfields = set(Actualfields)
+        if Actualfields != fields:
+            raise BadInputFile(filename)
         for name in companies:
             #sorting the csv file data based on column data with Company Name as Key
             result = sorted(reader, key=lambda d: float(d[name]), reverse=True)
@@ -117,6 +124,11 @@ class TestPraseData(unittest.TestCase):
         
         with self.assertRaises(BadInputFile):
             ParseData("Missing_Data.csv")
+
+    def test_IfDuplicateField(self):
+        '''Check for BadInputFile -- File that has duplicate field name entry'''
+        with self.assertRaises(BadInputFile):
+            ParseData("Duplicate_Field.csv")
 
 
 if __name__ == '__main__':
