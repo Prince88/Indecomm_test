@@ -35,12 +35,15 @@ def ParseData(filename):
         fh = open(filename,'r')
         reader = csv.DictReader(fh) #Try and open the file with csv dictreader
 
-        #Get the field names in the file: Will help verify if fields needed are there or not
+        # Get the field names in the file: Will help verify if fields needed are there or not
+        # Verifying if there is any duplicate field name
+        if len(list(reader.fieldnames)) != len(set(reader.fieldnames)):
+            raise BadInputFile(filename)
+        fields = set(reader.fieldnames)
         fields = set(reader.fieldnames)
         if not fields or 'Year' not in fields or 'Month' not in fields:
             raise BadInputFile(filename)
         companies = fields - {'Year', 'Month'}
-        companies = list(companies)
 
         # Check if any field for any Company name has a missing value
         # We can remove this piece of code and can form the result with
@@ -50,14 +53,7 @@ def ParseData(filename):
                 if not obj[name]:
                     raise BadInputFile(filename)
         fh.seek(0)
-        Actualfields = fh.next()
-        # Reading the first line of the file which has field names
-        # Need to see if there is any duplicate field name
-        Actualfields = Actualfields.split(',')
-        Actualfields[-1] = Actualfields[-1].strip('\n')
-        Actualfields = set(Actualfields)
-        if Actualfields.difference(fields):
-            raise BadInputFile(filename)
+        fh.next()
         for name in companies:
             #sorting the csv file data based on column data with Company Name as Key
             result = sorted(reader, key=lambda d: float(d[name]), reverse=True)
