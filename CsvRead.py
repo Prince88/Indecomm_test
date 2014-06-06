@@ -47,7 +47,7 @@ def ParseData(filename):
         # remaining values for that company.
         for obj in reader:
             for name in companies:
-                if obj[name] == '':
+                if not obj[name]:
                     raise BadInputFile(filename)
         fh.seek(0)
         Actualfields = fh.next()
@@ -56,7 +56,7 @@ def ParseData(filename):
         Actualfields = Actualfields.split(',')
         Actualfields[-1] = Actualfields[-1].strip('\n')
         Actualfields = set(Actualfields)
-        if Actualfields != fields:
+        if Actualfields.difference(fields):
             raise BadInputFile(filename)
         for name in companies:
             #sorting the csv file data based on column data with Company Name as Key
