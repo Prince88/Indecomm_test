@@ -40,7 +40,6 @@ def ParseData(filename):
         if len(list(reader.fieldnames)) != len(set(reader.fieldnames)):
             raise BadInputFile(filename)
         fields = set(reader.fieldnames)
-        fields = set(reader.fieldnames)
         if not fields or 'Year' not in fields or 'Month' not in fields:
             raise BadInputFile(filename)
         companies = fields - {'Year', 'Month'}
